@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 8080;
 import cors from 'cors';
 const corsOptions = require("./config/corsOptions");
 
+// Redis
+const redis = require('./helpers/redis');
+
 // Middlewares
 const credentials = require('./middleware/credentials');
 
@@ -19,6 +22,17 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.listen(PORT, () => {
-  console.log(`[server]: Server is running at ${PORT}`);
-});
+const startUp = async () => {
+    try {
+        await redis.RedisClient.connect();
+    }
+    catch(err){
+        console.error(err);
+    }
+
+    app.listen(PORT, () => {
+        console.log('Server is running at ' + PORT);
+    })
+    
+}
+startUp();

@@ -4,12 +4,21 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("THRIFT Store page");
-});
+// Cors
+import cors from 'cors';
+const corsOptions = require("./config/corsOptions");
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at ${port}`);
+// Middlewares
+const credentials = require('./middleware/credentials');
+
+app.use(credentials);
+app.use(cors(corsOptions));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.listen(PORT, () => {
+  console.log(`[server]: Server is running at ${PORT}`);
 });

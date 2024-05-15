@@ -15,12 +15,15 @@ const redis = require('./helpers/redis');
 
 // Middlewares
 const credentials = require('./middleware/credentials');
+const errorHandler = require('./middleware/errorHandler');
 
 app.use(credentials);
 app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use(errorHandler);
 
 const startUp = async () => {
     try {

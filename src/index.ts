@@ -23,6 +23,12 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Routes
+const authRoutes = require('./routes/auth');
+
+
+app.use('/oauth', authRoutes);
+
 app.use(errorHandler);
 
 const startUp = async () => {

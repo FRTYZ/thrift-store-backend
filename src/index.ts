@@ -26,9 +26,11 @@ app.use(express.urlencoded({ extended: false }));
 // Routes
 const authRoutes = require('./routes/auth');
 const memberRoutes = require('./routes/member');
+const advertRoutes = require('./routes/advert');
 
 app.use('/oauth', authRoutes);
 app.use('/account', memberRoutes);
+app.use('/advert', advertRoutes);
 
 app.use(errorHandler);
 

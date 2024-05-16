@@ -25,9 +25,10 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 const authRoutes = require('./routes/auth');
-
+const memberRoutes = require('./routes/member');
 
 app.use('/oauth', authRoutes);
+app.use('/account', memberRoutes);
 
 app.use(errorHandler);
 

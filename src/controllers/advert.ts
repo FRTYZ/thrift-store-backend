@@ -449,3 +449,49 @@ exports.getMyFavoriteAdvert = async function (req: Request, res: Response, next:
         next(err)
     }
 }
+
+exports.getLocationCity =  async function (req: Request, res: Response, next: NextFunction) {
+    try {
+        const data = await pool.query(`
+            SELECT 
+                id,
+                city as value
+            FROM 
+                cities
+        `);
+        const response = data.rows;
+
+        return res.status(200).json(response);
+
+    }catch(err){
+        next(err)
+    }
+}
+
+exports.getCountyForCity =  async function (req: Request, res: Response, next: NextFunction) {
+    const city_id = req.params.city_id;
+
+    try {
+
+        if(city_id == '' || city_id == 'undefined'){
+            throw new CustomError(404, "you must specify the city_id field"); 
+        }
+
+        const sqlQuery = `
+            SELECT 
+                id,
+                county as value
+            FROM 
+                counties
+            WHERE
+                city_id = $1
+        `
+        const data = await pool.query(sqlQuery, [city_id]);
+        const response = data.rows;
+
+        return res.status(200).json(response);
+
+    }catch(err){
+        next(err)
+    }
+}

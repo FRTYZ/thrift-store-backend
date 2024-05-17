@@ -10,3 +10,5 @@ router.get('/categories', advertController.getCategories);
 router.get("/actual", advertController.getActualAdvert);
 router.get("/status", verifyJWT, advertController.getAdvertStatus);
 router.post('/list', verifyJWT, multer.image_upload.array('photo'), advertController.postAdvert, multer.body_parse.any());
+router.get('/list', verifyJWT, advertController.getMyAdvert);
+router.get('/list/favorite', verifyJWT, advertController.getMyFavoriteAdvert);

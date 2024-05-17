@@ -15,3 +15,7 @@ router.get('/list', verifyJWT, advertController.getMyAdvert);
 router.get('/list/favorite', verifyJWT, advertController.getMyFavoriteAdvert);
 router.get('/location', advertController.getLocationCity);
 router.get('/location/:city_id', advertController.getCountyForCity);
+
+router.patch('/favorite/:advert_id', verifyJWT, multer.body_parse.array(), advertController.patchFavoriteAdvert);
+
+module.exports = router;

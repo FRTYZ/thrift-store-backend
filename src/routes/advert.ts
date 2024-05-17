@@ -8,3 +8,5 @@ const verifyJWT = require('../middleware/verifyJWT');
 router.get('/categories', advertController.getCategories);
 
 router.get("/actual", advertController.getActualAdvert);
+router.get("/status", verifyJWT, advertController.getAdvertStatus);
+router.post('/list', verifyJWT, multer.image_upload.array('photo'), advertController.postAdvert, multer.body_parse.any());

@@ -152,6 +152,123 @@ exports.getActualAdvert = async function (req: Request, res: Response, next: Nex
         next(err); 
     }
 }
+
+exports.getAdvertStatus = async function (req: Request, res: Response, next: NextFunction) {
+    try {
+        const statusSqlQuery = `
+            SELECT
+                id,
+                display_name as value
+            FROM
+                advert_status
+            WHERE
+                is_visible = TRUE
+        `;
+
+        const statusResponse = await pool.query(statusSqlQuery);
+        const statusResult = statusResponse.rows;
+
+        return res.status(200).json(statusResult);
+
+    }catch(err){
+        console.log(err)
+        next(err)
+    }
+}
+
+exports.postAdvert = async function (req: Request, res: Response, next: NextFunction) {
+    const getRedisData = await redis.RedisClient.get('currentUser');
+    const parseUser = JSON.parse(getRedisData);
+
+    const user_id = parseUser.user_id;
+    const email =  parseUser.username;
+
+    const {title, description, how_status, price, city_id, county_id, main_category_id, sub_category_id} = req.body;
+
+    const advertImages = req.files; 
+
+    try {
+        if (!user_id || user_id == '') {
+            throw new CustomError(403, "You must specify the user_id field.");
+        }
+
+        if (!title || title == '') {
+            throw new CustomError(400, "You must specify the title field.");
+        }
+
+        if (!description || description == '') {
+            throw new CustomError(400, "You must specify the description field.");
+        }
+
+        if (!advertImages) {
+            throw new CustomError(400, "You must specify the images field.");
+        }
+
+        if (!how_status) {
+            throw new CustomError(400, "You must specify the how_status field.");
+        }
+
+        if (!price || price == '') {
+            throw new CustomError(400, "You must specify the price field.");
+        }
+
+        if (!city_id || city_id == '') {
+            throw new CustomError(400, "You must specify the city_id field.");
+        }
+
+        if (!county_id || county_id == '') {
+            throw new CustomError(400, "You must specify the county_id field.");
+        }
+
+        const insertQuery = `
+            INSERT INTO adverts 
+                (title, 
+                description, 
+                user_id, 
+                status_id, 
+                price, 
+                city_id, 
+                county_id,
+                main_category_id,
+                sub_category_id
+                ) 
+            VALUES
+                ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+            RETURNING *
+            `;
+        const values = [title, description, user_id, how_status, price, city_id, county_id, main_category_id, sub_category_id];
+
+        const status = await pool.query(insertQuery, values);
+        const advert_id = status.rows[0].id;
+
+        const advertImagesResponse = await Image.uploadMultipleImages(advertImages, 'members/' + email  + '/adverts/' + advert_id + '/' , title);
+
+        for(const item of advertImagesResponse){
+
+            const imageInsertQuery = `
+                INSERT INTO advert_images
+                    (url, path, width, height, advert_id, is_cover_image) 
+                VALUES
+                    ($1, $2, $3, $4, $5, $6) 
+            `;
+
+            const values = [
+                item.url, 
+                item.path, 
+                item.width, 
+                item.height, 
+                advert_id, 
+                advertImagesResponse[0].path == item.path ? true : false 
+            ];
+
+            await pool.query(imageInsertQuery, values);
+        }
+       
+        return res.status(201).json({ 'success': 'true' , 'advert_id' : advert_id}) 
+    }catch (err){
+        next(err)
+    }
+}
 exports.getMyFavoriteAdvert = async function (req: Request, res: Response, next: NextFunction) {
     const getRedisData = await redis.RedisClient.get('currentUser')
     const currentUser = JSON.parse(getRedisData);

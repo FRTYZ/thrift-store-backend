@@ -107,6 +107,58 @@ exports.getActualAdvert = async function (req: Request, res: Response, next: Nex
                     AND
                 ai.is_cover_image = TRUE
         `;
+
+
+        let filters = [];
+        let values = [];
+
+        if(selected_city){
+           filters.push(`ad.city_id = $${filters.length + 1}`);
+           values.push(selected_city);
+        }
+        if(selected_county){
+           filters.push(`ad.county_id = $${filters.length + 1}`);
+           values.push(selected_county);
+        }
+        if(main_category){
+            filters.push(`ad.main_category_id = $${filters.length + 1}`);
+            values.push(main_category);
+        }
+        if(sub_category){
+            filters.push(`ad.sub_category_id = $${filters.length + 1}`);
+            values.push(sub_category);
+        }
+        if(min_price){
+            filters.push(`ad.price >= $${filters.length + 1}`);
+            values.push(min_price);
+        }
+        if(max_price){
+            filters.push(`ad.price <= $${filters.length + 1}`);
+            values.push(max_price);
+        }
+        if(search_query){
+            const search:string = search_query.replace(/%/g, ' ');
+           
+            filters.push(`(ad.title ILIKE $${filters.length + 1} OR ad.description ILIKE $${filters.length + 2})`);
+            values.push(`%${search}%`);
+            values.push(`%${search}%`);
+        }
+        
+        if(filters.length > 0){
+            sqlNonAuthQuery += ' AND ' + filters.join(' AND ')
+        }
+
+        if(sorting){
+            const orderType = sorting.split('-');
+
+            if(orderType[1] == 'price'){
+                sqlNonAuthQuery += ` ORDER BY ad.${orderType[1]} ${orderType[0].toLocaleUpperCase()} `
+            }
+            else{
+                sqlNonAuthQuery += ` ORDER BY ad.created_at ${orderType[0].toLocaleUpperCase()}`
+            }
+        }
+       
         const data = await pool.query(sqlNonAuthQuery,values);
         let result = data.rows;
 
@@ -253,7 +305,6 @@ exports.getAdvertStatus = async function (req: Request, res: Response, next: Nex
         return res.status(200).json(statusResult);
 
     }catch(err){
-        console.log(err)
         next(err)
     }
 }
@@ -609,6 +660,7 @@ exports.getMyAdvert = async function (req: Request, res: Response, next: NextFun
     }
 
 }
+
 exports.getMyFavoriteAdvert = async function (req: Request, res: Response, next: NextFunction) {
     const getRedisData = await redis.RedisClient.get('currentUser')
     const currentUser = JSON.parse(getRedisData);
@@ -674,7 +726,9 @@ exports.getMyFavoriteAdvert = async function (req: Request, res: Response, next:
     catch(err){
         next(err)
     }
-}exports.patchSettingAdvert = async function (req: Request, res: Response, next: NextFunction) {
+}
+
+exports.patchSettingAdvert = async function (req: Request, res: Response, next: NextFunction) {
     const advert_id = req.params.advert_id;
     const path = req.body.path;
     const op = req.body.op;

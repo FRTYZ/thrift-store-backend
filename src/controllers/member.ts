@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 
 const redis = require('../helpers/redis');
 const pool = require('../helpers/postgre');
+const Image = require('../helpers/uploadImage');
+
 const CustomError = require('../errors/CustomError');
 
 exports.get_member = async function (req: Request, res: Response, next: NextFunction) {
@@ -50,6 +52,108 @@ exports.get_member = async function (req: Request, res: Response, next: NextFunc
         next(error);
     }
 }
+
+exports.put_member = async function(req: Request, res: Response, next: NextFunction) {
+    const getRedisData = await redis.RedisClient.get('currentUser')
+    const currentUser = JSON.parse(getRedisData);
+
+    let fullname = req.body.fullname;
+    let email = req.body.email;
+    let about = req.body.about;
+    let phone_number = req.body.phone_number;
+    const password = req.body.password;
+    const currentPass = req.body.current_pass;
+    const photo = req.files;
+
+    try {
+        if (!currentUser || currentUser == '') {
+            throw new CustomError(403);
+        }
+
+        const current_email = currentUser.username 
+        const user_id = currentUser.user_id
+
+        const oldDataQuery = `
+            SELECT 
+                fullname,
+                photo,
+                email,
+                about,
+                password,
+                phone_number 
+            FROM
+                users
+            WHERE
+                email = $1
+        `;
+
+        const statusOldData = await pool.query(oldDataQuery, [current_email]);
+        const responseOldData = statusOldData.rows[0];
+
+        if (!fullname || fullname == '') {
+            fullname = responseOldData.fullname
+        }
+        if (!email || email == '') {
+            email = responseOldData.email
+        }
+        if (!phone_number) {
+            phone_number = responseOldData.phone_number
+        }
+
+        let hashedPass;
+        if(currentPass && currentPass !== ''){
+            const passCheck = await bcrypt.compare(currentPass, responseOldData.password);
+
+            if(passCheck){
+                hashedPass = await bcrypt.hashSync(password, 10);
+            }else{
+                throw new CustomError(404, "Check your current password.", 'invalid_grant');
+            }
+        }
+     
+        let selectedPhoto;
+
+        if(photo && photo.length != 0){
+            await Image.removeOldImage(responseOldData?.photo ? responseOldData?.photo?.path : '')
+            const uploadImage = await Image.uploadMultipleImages(photo, 'members/' + email  + '/avatar/', fullname);
+            selectedPhoto = JSON.stringify(uploadImage[0]);
+        }else{
+            selectedPhoto = responseOldData.photo
+        }
+        
+        const updateQuery = `
+            UPDATE
+                users
+            SET
+                fullname = $1,
+                email = $2,
+                about = $3,
+                phone_number = $4,
+                password = $5,
+                photo = $6
+            WHERE
+                id = $7
+        `;
+
+        const updateValues = [
+            fullname,
+            email,
+            about,
+            phone_number,
+            hashedPass == undefined ? responseOldData.password : hashedPass,
+            selectedPhoto,
+            user_id
+        ];
+
+        await pool.query(updateQuery, updateValues);
+
+        return res.status(200).json({'success': 'true', photo: selectedPhoto });
+
+    }catch (err){
+        next(err)
+    }
+}
+
 exports.post_member =  async function(req: Request, res: Response, next: NextFunction) {
     const {email, password, fullname} = req.body;
 

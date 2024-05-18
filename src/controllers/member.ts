@@ -198,3 +198,87 @@ exports.post_member =  async function(req: Request, res: Response, next: NextFun
         next(err);
     }
 }
+
+exports.get_user_info = async function(req:Request, res:Response, next: NextFunction) {
+    const userId = req.params.user_id;
+
+    try {
+        const userQuery = `
+            SELECT
+                fullname,
+                to_char(created_at,'DD Month') as date,
+                photo
+            FROM
+                users
+            WHERE
+                id = $1
+            AND
+                is_deleted = FALSE
+        `;
+
+        const userResult = await pool.query(userQuery, [userId]);
+        const userData = userResult.rows[0]; 
+
+        if(!userData){
+            throw new CustomError(404, "The user not found");
+        }
+
+        const advertQuery = `
+            SELECT 
+                ad.id, 
+                ad.title, 
+                to_char(ad.created_at,'DD Month') as date, 
+                ad.description,
+                ad.price,
+                ads.display_name,
+                cy.city,
+                ct.county,
+                ai.url as photo,
+                u.fullname,
+                u.photo as user_photo,
+                mc.category_name as main_category_name,
+                sc.sub_category_name,
+            CASE
+                WHEN adf.favorite_id IS NULL THEN false
+                ELSE true END
+                AS has_favorite
+            FROM
+                adverts ad
+            LEFT JOIN
+                users u ON u.id = ad.user_id
+            LEFT JOIN 
+                advert_status ads ON ads.id = ad.status_id 
+            LEFT JOIN 
+                cities cy ON cy.id = ad.city_id 
+            LEFT JOIN 
+                counties ct ON ct.id = ad.county_id 
+            LEFT JOIN
+                advert_favorites adf ON adf.advert_id = ad.id
+            LEFT JOIN
+                advert_images ai ON ai.advert_id = ad.id
+            LEFT JOIN
+                main_categories mc ON mc.category_id = ad.main_category_id
+			LEFT JOIN
+				sub_categories sc ON sc.sub_category_id = ad.sub_category_id
+            WHERE
+                ad.user_id = $1
+            AND
+                ad.is_deleted = FALSE 
+            AND 
+                ad.is_visible = TRUE
+            AND
+                u.is_deleted = FALSE
+            AND
+                ads.is_visible = TRUE
+            AND
+                ai.is_cover_image = TRUE
+        `;
+        const advertResult = await pool.query(advertQuery, [userId]);
+        const advertData = advertResult.rows;
+
+        return res.status(200).json({user: userData, adverts: advertData});
+
+    }catch(err){
+        next(err)
+    }
+}

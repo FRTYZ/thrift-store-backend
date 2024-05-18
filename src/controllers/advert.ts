@@ -153,6 +153,88 @@ exports.getActualAdvert = async function (req: Request, res: Response, next: Nex
     }
 }
 
+exports.getAdvertDetail = async function (req: Request, res: Response, next: NextFunction) {
+    const advert_id = req.params.detail;
+
+    try {
+        const sqlQuery = `
+            SELECT 
+                ad.id, 
+                ad.title, 
+                to_char(ad.created_at,'DD Month') as date,
+                ad.description, 
+                ad.price, 
+                u.id as userId, 
+                u.fullname,
+                u.photo as user_image,
+                ads.display_name, 
+                ad.city_id,
+                ad.county_id,
+                cy.city, 
+                ct.county,
+                ad.main_category_id,
+                ad.sub_category_id,
+                mc.category_name as main_category,
+				sc.sub_category_name as sub_category,
+                CASE
+                    WHEN adf.favorite_id IS NULL THEN false
+                    ELSE true END
+                    AS has_favorite
+            FROM 
+                adverts ad 
+            LEFT JOIN 
+                users u ON ad.user_id = u.id 
+            LEFT JOIN 
+                advert_status ads ON ads.id = ad.status_id 
+            LEFT JOIN 
+                cities cy ON cy.id = ad.city_id 
+            LEFT JOIN 
+                counties ct ON ct.id = ad.county_id 
+            LEFT JOIN
+                advert_favorites adf ON adf.advert_id = ad.id
+            LEFT JOIN
+				main_categories mc ON mc.category_id = ad.main_category_id
+			LEFT JOIN
+				sub_categories sc ON sc.sub_category_id = ad.sub_category_id
+            WHERE 
+                (ad.is_deleted = FALSE AND ad.is_visible = TRUE) 
+            AND 
+                (u.is_deleted = FALSE AND ads.is_visible = TRUE) AND ad.id = $1
+        `;
+
+        const data = await pool.query(sqlQuery, [advert_id]); 
+        const advertDetail = data.rows[0];
+
+        if(advertDetail == 'undefined'){
+            throw new CustomError(404, "veri bulunamadı"); 
+        }
+        const imagesQuery = `
+            SELECT
+                images_id,
+                url,
+                path,
+                width,
+                height,
+                is_cover_image
+            FROM
+                advert_images
+            WHERE
+                advert_id = $1
+        `
+        const imagesResponse = await pool.query(imagesQuery, [advert_id]);
+        const imagesResult = imagesResponse.rows;
+
+        if(imagesResult.length > 0){
+            advertDetail['photo'] = imagesResult
+        }
+
+        return res.status(200).json(advertDetail);
+
+    } catch(err) {
+        next(err); 
+    }
+}
+
 exports.getAdvertStatus = async function (req: Request, res: Response, next: NextFunction) {
     try {
         const statusSqlQuery = `

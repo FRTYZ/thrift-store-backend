@@ -662,6 +662,7 @@ exports.getMyAdvert = async function (req: Request, res: Response, next: NextFun
 }
 
 exports.getMyFavoriteAdvert = async function (req: Request, res: Response, next: NextFunction) {
+
     const getRedisData = await redis.RedisClient.get('currentUser')
     const currentUser = JSON.parse(getRedisData);
 
@@ -675,13 +676,17 @@ exports.getMyFavoriteAdvert = async function (req: Request, res: Response, next:
                 to_char(ad.created_at,'DD Month') as date, 
                 ad.description,
                 ad.price,
-                ad.how_status,
-                u.user_type,
-                ads.display_type,
+                ad.main_category_id,
+                ad.sub_category_id,
+                ads.id as status_id,
                 ads.display_name,
                 cy.city,
                 ct.county,
                 ai.url as photo,
+                u.fullname,
+                u.photo as user_photo,
+                mc.category_name as main_category_name,
+                sc.sub_category_name,
             CASE
                 WHEN adf.favorite_id IS NULL THEN false
                 ELSE true END
@@ -700,6 +705,10 @@ exports.getMyFavoriteAdvert = async function (req: Request, res: Response, next:
                 advert_favorites adf ON adf.advert_id = ad.id
             LEFT JOIN
                 advert_images ai ON ai.advert_id = ad.id
+            LEFT JOIN
+                main_categories mc ON mc.category_id = ad.main_category_id
+			LEFT JOIN
+				sub_categories sc ON sc.sub_category_id = ad.sub_category_id
             WHERE 
                 ad.is_deleted = FALSE 
                     AND 

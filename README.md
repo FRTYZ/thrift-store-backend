@@ -3,6 +3,8 @@
 ![Home Page](https://raw.githubusercontent.com/FRTYZ/thrift-store-backend/main/public/home-api-docs.png)
 
 ## Hello Everyone
+Is a project that allows second-hand clothes to be put up for sale.
+
 I created the backend side with the Rest API (RESTful API) service using NodeJS with Typescript.
 
 After installing the backend, you can switch to the frontend project from this link and continue with the installation.

@@ -11,7 +11,8 @@ After installing the backend, you can switch to the frontend project from this l
 
 I used swagger to experiment with API requests. check out the demo link
 
-[Backend Live Demo](https://thrift-store-backend-production.up.railway.app/)
+## Backend Live Demo 
+https://thrift-store-backend-production.up.railway.app/
 
 ### Features
 * NodeJS with Typescript 
@@ -110,7 +111,7 @@ npm run dev
 
 ```
 {
-  "name": "letgo-clone-backend",
+  "name": "thrift-store-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -118,43 +119,37 @@ npm run dev
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx nodemon src/index.ts",
     "start": "node dist/index.js",
-    "build": "tsc",
-    "debug": "nodemon --exec \"node --inspect-brk=0.0.0.0:9229 --require ts-node/register src/index.ts\""
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@types/cors": "^2.8.16",
-    "@types/express": "^4.17.21",
-    "@types/multer": "^1.4.11",
-    "@types/node": "^20.9.0",
-    "@types/pg": "^8.10.9",
-    "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.6",
-    "nodemon": "^3.0.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
-  },
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "ejs": "^3.1.9",
-    "express": "^4.18.2",
-    "firebase-admin": "^11.11.1",
-    "joi": "^17.11.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "firebase-admin": "^12.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "pg": "^8.11.3",
-    "redis": "^4.6.10",
-    "sharp": "^0.33.0",
+    "pg": "^8.11.5",
+    "redis": "^4.6.13",
+    "sharp": "^0.33.4",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0",
-    "uuid": "^9.0.1"
+    "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.12.12",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
+    "cors": "^2.8.5",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }
-
 ```
 
 Good Encodings

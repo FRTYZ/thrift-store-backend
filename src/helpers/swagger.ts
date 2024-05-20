@@ -48,7 +48,7 @@ function swaggerDocs(app: Express) {
             display: none
           }
         `,
-        customSiteTitle: 'Thrift Stone API'
+        customSiteTitle: 'Thrift Store API'
       }
     ));
   

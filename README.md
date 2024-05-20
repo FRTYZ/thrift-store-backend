@@ -49,7 +49,7 @@ https://github.com/FRTYZ/thrift-store-backend.git
 
     *  After you created firebase project, You should get and download the Firebase Admin SDK JSON file
 
-![Firebase](https://raw.githubusercontent.com/FRTYZ/thrift-store-backend/main/public/firebase.json.png)
+![Firebase](https://raw.githubusercontent.com/FRTYZ/thrift-store-backend/main/public/firebase-json.png)
 
 * ### STEP 3: You should download and install redis on your computer
 
@@ -93,10 +93,9 @@ Note: FIREBASE_PRIVATE_KEY value must be between " " signs
 npm install -g typescript
 ```
 
-* ### install all packages with the command
+* ### STEP 7: install all packages with the command
 ```
 npm install
-npm run build
 npm run dev
 ```
 

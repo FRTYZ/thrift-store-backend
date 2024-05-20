@@ -7,7 +7,7 @@ I created the backend side with the Rest API (RESTful API) service using NodeJS 
 
 After installing the backend, you can switch to the frontend project from this link and continue with the installation.
 
-[Thrift Store Web](https://github.com/FRTYZ/thrift-store-web)
+[Thrift Store Web (Frontend)](https://github.com/FRTYZ/thrift-store-web)
 
 I used swagger to experiment with API requests. check out the demo link
 
@@ -58,10 +58,10 @@ https://github.com/FRTYZ/thrift-store-backend.git
 
 * ### STEP 4: Download and install postgresql server and pgadmin on your computer
 
-* After install pgadmin and postgresql, Create a new database with name "thrift-store". [PgAdmin Download](https://www.pgadmin.org/download/)
+    * After install pgadmin and postgresql, Create a new database with name "thrift-store". [PgAdmin Download](https://www.pgadmin.org/download/)
 
-* You should restore "thrift-store-db.sql" on new database.
-[PGAdmin Restore Documention](https://www.pgadmin.org/docs/pgadmin4/latest/restore_dialog.html)
+    * You should restore "thrift-store-db.sql" on new database.
+    [PGAdmin Restore Documention](https://www.pgadmin.org/docs/pgadmin4/latest/restore_dialog.html)
 
 * ### STEP 5: Create the ".env" file. and add the following
 
@@ -101,7 +101,7 @@ npm run dev
 
 * ### 🎉 The project will run on port 8080. now the backend installation is complete, you can install the frontend side
 
-[Thrift Store Web](https://github.com/FRTYZ/thrift-store-web)
+[Thrift Store Web (Frontend)](https://github.com/FRTYZ/thrift-store-web)
 
 ![screenshot](https://raw.githubusercontent.com/FRTYZ/thrift-store-backend/main/public/running.png)
 

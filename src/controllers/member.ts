@@ -97,8 +97,8 @@ exports.put_member = async function(req: Request, res: Response, next: NextFunct
             email = responseOldData.email
         }
         if (!phone_number) {
-            phone_number = responseOldData.phone_number
-        }
+            phone_number = responseOldData?.phone_number
+        } 
 
         let hashedPass;
         if(currentPass && currentPass !== ''){
@@ -186,9 +186,9 @@ exports.post_member =  async function(req: Request, res: Response, next: NextFun
         const insertUserQuery = `
             INSERT INTO
                 users
-            (fullname, email, password, user_type)
+            (fullname, email, password)
                 VALUES
-            ($1, $2, $3, 'CONSUMER')
+            ($1, $2, $3)
         `;
        
         await pool.query(insertUserQuery, [fullname, email, passwordHash])

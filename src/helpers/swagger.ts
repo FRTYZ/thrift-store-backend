@@ -48,7 +48,7 @@ function swaggerDocs(app: Express) {
             display: none
           }
         `,
-        customSiteTitle: 'Letgo Clone API'
+        customSiteTitle: 'Thrift Stone API'
       }
     ));
   

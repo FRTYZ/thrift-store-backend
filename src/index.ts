@@ -6,6 +6,9 @@ dotenv.config();
 const app: Express = express();
 const PORT = process.env.PORT || 8080;
 
+// Swagger
+import swaggerDocs from './helpers/swagger';
+
 // Cors
 import cors from 'cors';
 const corsOptions = require("./config/corsOptions");
@@ -45,6 +48,7 @@ const startUp = async () => {
     app.listen(PORT, () => {
         console.log('Server is running at ' + PORT);
     })
-    
+
+    swaggerDocs(app);
 }
 startUp();
